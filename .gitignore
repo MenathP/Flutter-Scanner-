@@ -1,0 +1,35 @@
+# Flutter/Dart/Pub
+.dart_tool/
+.packages
+pubspec.lock
+build/
+/.gradle
+.idea/
+.vscode/
+*.iml
+
+# Android
+/android/.gradle
+/android/app/*.keystore
+/android/local.properties
+
+# iOS
+Pods/
+Runner/GeneratedPluginRegistrant.*
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+*.xcworkspace
+*.xcuserstate
+
+# macOS
+/.dart_tool/
+flutter_export_environment.sh
+
+# Web
+build/web/
+
+# Windows
+windows/runner/Debug*
+
+# VS Code
+.vscode/
