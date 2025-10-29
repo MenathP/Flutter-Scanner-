@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:app/services/auth_service.dart';
+import 'package:app/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -74,10 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.of(
         context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const _HomeScreen()));
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     } catch (e) {
+      // Normalize error message (strip Exception: prefix if present)
+      var msg = e.toString();
+      const prefix = 'Exception: ';
+      if (msg.startsWith(prefix)) msg = msg.substring(prefix.length);
       setState(() {
-        _error = e.toString();
+        _error = msg;
       });
     } finally {
       if (mounted) {
@@ -105,9 +110,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(6, (i) => _buildDigitBox(i)),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final available = constraints.maxWidth;
+                    const gap = 12.0; // total gap between adjacent boxes
+                    const endPadding =
+                        12.0; // left + right outer padding (6 + 6)
+                    final rawWidth =
+                        (available - gap * (6 - 1) - endPadding) / 6.0;
+                    // clamp to a sensible range so boxes never get too big or too small
+                    final boxWidth = rawWidth.clamp(36.0, 56.0);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        6,
+                        (i) => _buildDigitBox(i, boxWidth),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
                 if (_error != null) ...[
@@ -141,11 +161,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildDigitBox(int index) {
+  Widget _buildDigitBox(int index, double width) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: SizedBox(
-        width: 48,
+        width: width,
         child: TextField(
           controller: _controllers[index],
           focusNode: _focusNodes[index],
@@ -174,17 +194,3 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 int min(int a, int b) => a < b ? a : b;
-
-class _HomeScreen extends StatelessWidget {
-  const _HomeScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: const Center(
-        child: Text('You are logged in', style: TextStyle(fontSize: 18)),
-      ),
-    );
-  }
-}
